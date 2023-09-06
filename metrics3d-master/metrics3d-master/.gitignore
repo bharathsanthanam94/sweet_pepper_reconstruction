@@ -1,0 +1,6 @@
+metrics_3d.egg-info/
+**/__pycache__/
+**/.vscode/
+.coverage
+**/*.pyc
+data/
