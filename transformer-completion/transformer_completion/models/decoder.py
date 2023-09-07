@@ -4,8 +4,9 @@ import torch
 from transformer_completion.models.positional_encoder import PositionalEncoder
 from transformer_completion.utils.interpolate import knn_up
 from torch import nn
-from .rgb_feature import RGBfeatureprojection
-
+# from .rgb_feature import RGBfeatureprojection
+from .mod_rgb_feature import RGBfeatureprojection
+import time
 class MaskedTransformerDecoder(nn.Module):
     def __init__(self, cfg, bb_cfg, data_cfg):
         """
@@ -138,13 +139,14 @@ class MaskedTransformerDecoder(nn.Module):
         )
         if self.rgb:
 
-            '''
+            start_time=time.time()
             #uncomment to extract RGB features (output: [1,2562,512])
             resnet_feat=RGBfeatureprojection("layer2")
             #can try with template_points or pt_template
             rgb_mesh_features=resnet_feat(x['image'][0],template_points,template_faces,x['extrinsics'][0],x['intrinsics'][0])
-            '''
-            rgb_mesh_features=x['RGB_feats'][0]
+            end_time=time.time()
+            import ipdb;ipdb.set_trace()
+            # rgb_mesh_features=x['RGB_feats'][0]
             
         predictions_confidence.append(outputs_confidence)
         predictions_offsets.append(offset)

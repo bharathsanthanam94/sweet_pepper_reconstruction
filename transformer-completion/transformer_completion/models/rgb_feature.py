@@ -13,6 +13,7 @@ import open3d as o3d
 from torch import nn
 import numpy as np
 from .resnet_feature import extract_features
+import ipdb
 class RGBfeatureprojection(nn.Module):
         def __init__(self,resnet_layer):
             super().__init__()
@@ -162,11 +163,12 @@ class RGBfeatureprojection(nn.Module):
               img_array=np.asarray(rgb)
               # start_resnet=time.time()
               resnet_features = extract_features('resnet50',img_array)
+              
               # end_resnet=time.time()
               # print("Time for ResNet features:",end_resnet-start_resnet)
               resnet_features=resnet_features.squeeze(0)
               pixel2features=torch.repeat_interleave(torch.repeat_interleave(resnet_features,8,dim=1),8,dim=2)
-              
+              ipdb.set_trace()
               
               #Find the index where no ray falls
               missing_index=set(range(trimesh_mesh.vertices.shape[0]))-set(face_verts.flatten())
