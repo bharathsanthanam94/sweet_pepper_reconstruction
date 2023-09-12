@@ -31,7 +31,7 @@ class RGBfeatureprojection(nn.Module):
         def forward(self,rgb_filename,vertices_mesh,faces_mesh,cam_extrinsics,intrinsics_mat):
               
               
-              vertices= vertices_mesh.cpu().numpy().squeeze(0).astype(np.float32)
+              vertices= vertices_mesh.cpu().detach().numpy().squeeze(0).astype(np.float32)
               faces=faces_mesh.cpu().numpy().squeeze(0).astype(np.uint32)
               # vertices,faces=self.get_mesh_attr(vertices,faces,cam_extrinsics)
 

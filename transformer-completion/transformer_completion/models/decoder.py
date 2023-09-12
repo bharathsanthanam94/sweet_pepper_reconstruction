@@ -33,7 +33,7 @@ class MaskedTransformerDecoder(nn.Module):
         #earlier implementation
         # self.num_layers = cfg.FEATURE_LEVELS * cfg.DEC_BLOCKS
         #for checking the new RGB feature added pipeline, set this to 1
-        self.num_layers=1
+        self.num_layers=3
         self.nheads = nheads
         self.transformer_self_attention_layers = nn.ModuleList()
         self.transformer_cross_attention_layers = nn.ModuleList()
@@ -83,6 +83,7 @@ class MaskedTransformerDecoder(nn.Module):
         in_channels = in_channels[-self.num_feature_levels :]
 
         self.input_proj = nn.ModuleList()
+        # self.RGB_proj=nn.ModuleList()
         # for ch in in_channels:
         #     if ch != hidden_dim:  # linear projection to hidden_dim
         #         self.input_proj.append(nn.Linear(ch, hidden_dim))
@@ -94,8 +95,9 @@ class MaskedTransformerDecoder(nn.Module):
             self.input_proj.append(nn.Linear(in_channels[-1], hidden_dim))
         '''
         if cfg.RGB:
-            for i in range(self.num_layers):
-                self.input_proj.append(nn.Linear(536, hidden_dim))
+            for i in range(self.num_layers-1):
+                self.input_proj.append(nn.Linear(in_channels[-1], hidden_dim))
+            self.RGB_proj=nn.Linear(536,hidden_dim)
         else:
             # import ipdb;ipdb.set_trace()
             for i in range(self.num_layers):
@@ -137,6 +139,8 @@ class MaskedTransformerDecoder(nn.Module):
             coors,
             update_initial_template=False,
         )
+
+        '''
         if self.rgb:
 
             start_time=time.time()
@@ -145,9 +149,11 @@ class MaskedTransformerDecoder(nn.Module):
             #can try with template_points or pt_template
             rgb_mesh_features=resnet_feat(x['image'][0],template_points,template_faces,x['extrinsics'][0],x['intrinsics'][0])
             end_time=time.time()
-            import ipdb;ipdb.set_trace()
-            # rgb_mesh_features=x['RGB_feats'][0]
+            print("time taken for projection: ",end_time-start_time)
             
+            
+            # rgb_mesh_features=x['RGB_feats'][0]
+        '''  
         predictions_confidence.append(outputs_confidence)
         predictions_offsets.append(offset)
         all_point_templates.append(pt_template) 
@@ -156,8 +162,17 @@ class MaskedTransformerDecoder(nn.Module):
             # import ipdb;ipdb.set_trace()
             #add the RGB features here to the template_features (the shape should be 1,2562,512+24)
             if self.rgb:
-                combined_features=torch.cat((template_features,rgb_mesh_features.float()),dim=2)
-                src = self.input_proj[i](combined_features)
+                if i<2:
+                    # combined_features=torch.cat((template_features,rgb_mesh_features.float()),dim=2)
+                    # print("RGB features combined")
+                    src = self.input_proj[i](template_features)
+                else:
+                    resnet_feat=RGBfeatureprojection("layer2")
+                    #can try with template_points or pt_template
+                    rgb_mesh_features=resnet_feat(x['image'][0],pt_template,template_faces,x['extrinsics'][0],x['intrinsics'][0])
+                    combined_features=torch.cat((template_features,rgb_mesh_features.float()),dim=2)
+                    src=self.RGB_proj(combined_features)
+                
             else:
                 src= self.input_proj[i](template_features)
             # import ipdb;ipdb.set_trace()

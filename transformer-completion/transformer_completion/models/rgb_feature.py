@@ -168,7 +168,7 @@ class RGBfeatureprojection(nn.Module):
               # print("Time for ResNet features:",end_resnet-start_resnet)
               resnet_features=resnet_features.squeeze(0)
               pixel2features=torch.repeat_interleave(torch.repeat_interleave(resnet_features,8,dim=1),8,dim=2)
-              ipdb.set_trace()
+              
               
               #Find the index where no ray falls
               missing_index=set(range(trimesh_mesh.vertices.shape[0]))-set(face_verts.flatten())

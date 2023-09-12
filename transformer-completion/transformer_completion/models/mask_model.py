@@ -230,18 +230,21 @@ class MaskPS(LightningModule):
                 )
                 # o3d.io.write_triangle_mesh("predicted_mesh.ply",pt_mesh)
                 file_mesh=x['filename'][0].split('color/')[1].split('.png')[0]+"_mesh"+".ply"
-                o3d.io.write_triangle_mesh(file_mesh, pt_mesh)
+                # o3d.io.write_triangle_mesh(file_mesh, pt_mesh) #uncomment this
                 in_pcd = o3d.geometry.PointCloud()
                 in_pcd.points = o3d.utility.Vector3dVector(x["points"][batch_idx])
                 # post-process crap
                 # pp_mesh = o3d.t.geometry.TriangleMesh.from_legacy(pp_mesh).fill_holes(
                 #     hole_size=0.004).to_legacy()
                 print("final prediction")
+                #uncomment this 
+                '''
                 o3d.visualization.draw_geometries(
                     [final_prediction_lineset, in_pcd],
                     mesh_show_back_face=True,
                     mesh_show_wireframe=True,
                 )
+                '''
 
             self.chamfer_dist_metric.update(gt, pt_mesh)
             self.precision_recall.update(gt, pt_mesh)
