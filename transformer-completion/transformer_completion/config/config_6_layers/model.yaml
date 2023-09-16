@@ -20,7 +20,7 @@ TRAIN:
     DECAY: 0.95
     FREEZE_MODULES: []
     LR: 0.0001
-    MAX_EPOCH: 700
+    MAX_EPOCH: 20
     NUM_WORKERS: 0
     N_GPUS: -1
     STEP: 50
@@ -46,7 +46,7 @@ LOSS:
 FRUITS:
     NUM_CLASSES: 0
     TEMPLATE_DIM: 3
-    SENSOR: 'laser'
+    SENSOR: 'realsense'
     AUGMENTATION: False
 
 LEAVES:

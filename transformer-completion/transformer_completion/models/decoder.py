@@ -31,9 +31,9 @@ class MaskedTransformerDecoder(nn.Module):
         cfg.POS_ENC.FEAT_SIZE = hidden_dim
         self.pe_layer = PositionalEncoder(cfg.POS_ENC)
         #earlier implementation
-        # self.num_layers = cfg.FEATURE_LEVELS * cfg.DEC_BLOCKS
+        self.num_layers = cfg.FEATURE_LEVELS * cfg.DEC_BLOCKS
         #for checking the new RGB feature added pipeline, set this to 1
-        self.num_layers=3
+        # self.num_layers=3
         self.nheads = nheads
         self.transformer_self_attention_layers = nn.ModuleList()
         self.transformer_cross_attention_layers = nn.ModuleList()

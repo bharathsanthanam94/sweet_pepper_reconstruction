@@ -249,9 +249,32 @@ if __name__ == '__main__':
     from torch.utils.data import DataLoader
     dd = IGGFruit(data_source='/data1/bsanthanam/thesis/data/sweet_pepper_RGBfeats_subset/', sensor='realsense', precomputed_augmentation=False)
     dl = DataLoader(dd, batch_size=1, collate_fn=dd.collate)
+    
     for item in dl:
-        import ipdb;ipdb.set_trace()
+    
+        
+        for idx,item in enumerate(dl):
+            
+            pt = item['points'][0]
+            gt = item['extra']['gt_points'][0]
+            pcd = o3d.geometry.PointCloud()
+            pcd.points = o3d.utility.Vector3dVector(pt)
+            # o3d.visualization.draw_geometries([pcd])
+            gcd = o3d.geometry.PointCloud()
+
+            gcd.points = o3d.utility.Vector3dVector(gt)
+            colors=item['colors'][0]
+            pcd.colors=o3d.utility.Vector3dVector(colors)
+            gcd.paint_uniform_color([.5,.7,.5])
+            # o3d.visualization.draw_geometries([pcd,gcd])
+            o3d.io.write_point_cloud("/data1/bsanthanam/thesis/pepper_transformer/ipbloaders/ipb_loaders/pointcloud/gt.ply",pcd)
+            o3d.io.write_point_cloud("/data1/bsanthanam/thesis/pepper_transformer/ipbloaders/ipb_loaders/pointcloud/pcd.ply",gcd)
+            import ipdb;ipdb.set_trace()
+        
+
+
 
         
 
-        print('batch size: ', len(item['points']))
+        # print('batch size: ', len(item['points']))
+    print("total datapoints: ",count)

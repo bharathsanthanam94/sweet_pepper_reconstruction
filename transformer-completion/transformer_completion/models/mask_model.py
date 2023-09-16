@@ -230,7 +230,7 @@ class MaskPS(LightningModule):
                 )
                 # o3d.io.write_triangle_mesh("predicted_mesh.ply",pt_mesh)
                 file_mesh=x['filename'][0].split('color/')[1].split('.png')[0]+"_mesh"+".ply"
-                # o3d.io.write_triangle_mesh(file_mesh, pt_mesh) #uncomment this
+                o3d.io.write_triangle_mesh(file_mesh, pt_mesh) #uncomment this
                 in_pcd = o3d.geometry.PointCloud()
                 in_pcd.points = o3d.utility.Vector3dVector(x["points"][batch_idx])
                 # post-process crap

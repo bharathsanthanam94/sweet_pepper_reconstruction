@@ -9,7 +9,6 @@ DECODER:
     NUM_QUERIES: 0 #number of vertices, will be set at run time for now
     MASK_FEAT_PE: False # add pe to the point features
     OFFSET_SCALING: 2.5
-    RGB: False
     ITERATIVE_TEMPLATE: False
     POS_ENC:
         MAX_FREQ: 10000

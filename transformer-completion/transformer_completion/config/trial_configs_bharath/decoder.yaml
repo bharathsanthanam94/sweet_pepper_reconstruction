@@ -1,15 +1,15 @@
 DECODER:
-    CR: 1 # channel ratio, change feature dimensions
+    CR: 0.25 # channel ratio, change feature dimensions
     AUX_OUTPUTS: True # supervise intermediate layers
-    HIDDEN_DIM: 256 # Transformer features dim
-    NHEADS: 8
+    HIDDEN_DIM: 32 # Transformer features dim
+    NHEADS: 4
     DIM_FEEDFORWARD: 1024 # FFN hidden dim
     FEATURE_LEVELS: 3 #3 # features at N scales
-    DEC_BLOCKS: 3 # Dec_layers = 9: 3xFEATURE_LEVELS
+    DEC_BLOCKS: 1 # Dec_layers = 9: 3xFEATURE_LEVELS
     NUM_QUERIES: 0 #number of vertices, will be set at run time for now
     MASK_FEAT_PE: False # add pe to the point features
     OFFSET_SCALING: 2.5
-    RGB: False
+    RGB: True
     ITERATIVE_TEMPLATE: False
     POS_ENC:
         MAX_FREQ: 10000

@@ -12,7 +12,7 @@ PATH: '/data1/bsanthanam/thesis/data/sweet_pepper_RGBfeats_subset'
 # PATH: '/home/bharath/Desktop/thesis/code/data/sweet_pepper_master_copy/damaged_peppers_copy'
 # PATH: '/export/data/federico-domain-adapatation/SweetPepper/SweetPepper'
 EXPERIMENT:
-    ID: sunburned_pepper_withoutRGB_14_09_layer6
+    ID: sunburned_pepper_withoutRGB_14_09_layer3
 TRAIN:
     AUG: true
     BATCH_ACC: 4
@@ -20,7 +20,7 @@ TRAIN:
     DECAY: 0.95
     FREEZE_MODULES: []
     LR: 0.0001
-    MAX_EPOCH: 700
+    MAX_EPOCH: 20
     NUM_WORKERS: 0
     N_GPUS: -1
     STEP: 50
@@ -46,7 +46,7 @@ LOSS:
 FRUITS:
     NUM_CLASSES: 0
     TEMPLATE_DIM: 3
-    SENSOR: 'laser'
+    SENSOR: 'realsense'
     AUGMENTATION: False
 
 LEAVES:

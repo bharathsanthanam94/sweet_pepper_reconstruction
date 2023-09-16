@@ -1,0 +1,60 @@
+# LOGDIR: '/media/federico/federico_hdd/shape_completion/Leaf/log/'
+# PATH: '/media/federico/federico_hdd/shape_completion/Leaf/icra22_leaf_testset/'
+LOGDIR: '/media/federico/federico_hdd/shape_completion/Leaf/log/'
+PATH: '/media/federico/federico_hdd/Pheno4D/'
+
+EXPERIMENT:
+    ID: mask_ps
+
+TRAIN:
+    AUG: true
+    BATCH_ACC: 5
+    BATCH_SIZE: 1
+    DECAY: 0.95
+    FREEZE_MODULES: []
+    LR: 0.0001
+    MAX_EPOCH: 1000
+    NUM_WORKERS: 0
+    N_GPUS: -1
+    STEP: 50
+MODEL:    
+    DATASET: LEAVES
+    OVERFIT: True
+    FRUIT: LEAF
+    SMOOTH_LEAF: 1
+    TEMPLATE: 'plane'
+
+LOSS:
+    WEIGHTS_CONF: 0.000001
+    WEIGHTS_REG_LAP: 0.0 #00001
+    WEIGHTS_REG_NOR: 0.0 #00001
+    WEIGHTS_CD: 1.0
+    WEIGHTS_KEYS: ['loss_ce','loss_dice','loss_mask']
+    WEIGHTS: [2.0, 5.0, 5.0]
+    MASK_W: [0.15,0.25,0.5]
+    EOS_COEF: 0.1
+    NUM_POINTS: 50000 #n of points to sample for the loss
+    NUM_MASK_PTS: 500 #points to sample within each mask
+    P_RATIO: 0.4 #ratio of points to use for the loss
+    # auxiliary semantic loss
+    SEM:
+        WEIGHTS: [2,6] #Ce, Lovasz
+
+FRUITS:
+    NUM_CLASSES: 0
+    TEMPLATE_DIM: 3
+    SENSOR: 'laser'
+    AUGMENTATION: Augmentation
+
+LEAVES:
+    NUM_CLASSES: 0
+    TEMPLATE_DIM: 2
+
+CKA:
+    NUM_CLASSES: 0
+    TEMPLATE_DIM: 3
+
+SBUB:
+    NUM_CLASSES: 0
+    TEMPLATE_DIM: 2
+    VIEW: 1
