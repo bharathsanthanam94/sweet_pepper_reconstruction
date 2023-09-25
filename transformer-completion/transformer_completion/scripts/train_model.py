@@ -122,6 +122,7 @@ def main(w, ckpt, bb_cr, dec_cr, iterative, model_cfg_path, dec_cfg_path, bb_cfg
     )
 
     trainer = Trainer(
+        # precision=16,
         num_sanity_val_steps=0,
         gpus=cfg.TRAIN.N_GPUS,
         # devices=cfg.TRAIN.N_GPUS,
@@ -134,6 +135,7 @@ def main(w, ckpt, bb_cr, dec_cr, iterative, model_cfg_path, dec_cfg_path, bb_cfg
         gradient_clip_val=0.5,
         accumulate_grad_batches=cfg.TRAIN.BATCH_ACC,
         resume_from_checkpoint=ckpt,
+        check_val_every_n_epoch=5,
     )
     trainer.fit(model, data)
     trainer.test(model, dataloaders=data.test_dataloader())

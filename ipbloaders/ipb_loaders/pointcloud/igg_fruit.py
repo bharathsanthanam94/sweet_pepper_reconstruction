@@ -5,7 +5,7 @@ import json
 from PIL import Image
 from ipb_loaders.ipb_base import IPB_Base
 import torch
-
+import copy
 class IGGFruit(IPB_Base):
 
     def __init__(self,
@@ -62,12 +62,13 @@ class IGGFruit(IPB_Base):
         
             else:
                 poses = np.load(os.path.join(self.data_source, fid, 'tf/tf_allposes.npz'))['arr_0']
-
+            
                 # depth_frames = self.absolute_file_paths(fid, 'realsense/depth/')
                 rgb_frames = self.absolute_file_paths(fid, 'realsense/color/')
 
                 # for idx in range(0, len(poses) - self.fragment_step, self.fragment_step):
-                for idx in range(0, 2 - self.fragment_step, self.fragment_step):
+                # for idx in range(0, 2 - self.fragment_step, self.fragment_step):
+                for idx in range(1):
 
 
                     fragment_dict = {}
@@ -247,34 +248,65 @@ class IGGFruit(IPB_Base):
 
 if __name__ == '__main__':
     from torch.utils.data import DataLoader
-    dd = IGGFruit(data_source='/data1/bsanthanam/thesis/data/sweet_pepper_RGBfeats_subset/', sensor='realsense', precomputed_augmentation=False)
+    # dd = IGGFruit(data_source='/data1/bsanthanam/thesis/data/sweet_pepper_RGBfeats_subset/', sensor='realsense', precomputed_augmentation=False)
+    dd = IGGFruit(data_source='/data2/bsanthanam/icp/', sensor='realsense', precomputed_augmentation=False)
+
     dl = DataLoader(dd, batch_size=1, collate_fn=dd.collate)
-    
+    '''
     for item in dl:
+        import ipdb;ipdb.set_trace()
+        print(item['image'])
+        print([item['extrinsics']])
+      
+    '''
+    print("applying ICP")
+    #for ICP
+    new_transformation=[]
+    for idx,item in enumerate(dl):
+        # print(item['points'][0].shape)
+        pt = item['points'][0]
+        gt = item['extra']['gt_points'][0]
+        pcd = o3d.geometry.PointCloud()
+        pcd.points = o3d.utility.Vector3dVector(pt)
+        # o3d.visualization.draw_geometries([pcd])
+        gcd = o3d.geometry.PointCloud()
+
+        gcd.points = o3d.utility.Vector3dVector(gt)
+        # colors=item['colors'][0]
+        # print("realsense colors shape:",colors.shape)
+        # print("realsense points shape:",pt.shape)
+        # print("full mesh shape:",gt.shape)
+        # pcd.colors=o3d.utility.Vector3dVector(colors)
+        # gcd.paint_uniform_color([.5,.7,.5])
+        # o3d.visualization.draw_geometries([pcd,gcd])
+        # print("Apply point-to-point ICP")
+        # import ipdb;ipdb.set_trace()
+        #uncomment the following to perform ICP
+        
+        # Perform initial alignment (identity transformation)
+        threshold = 0.02
+        trans_init = np.asarray([[1.0, 0.0, 0.0, 0.0], 
+                                [0.0, 1.0, 0.0, 0.0],
+                                [0.0, 0.0, 1.0, 0.0]])
+                                
+        reg_p2p = o3d.pipelines.registration.registration_icp(
+            pcd, gcd, threshold)
+
+        # print("transformation matrix:",reg_p2p.transformation)
+        source_temp = copy.deepcopy(pcd)
+        target_temp = copy.deepcopy(gcd)
+        # source_temp.paint_uniform_color([1, 0.706, 0])
+        # target_temp.paint_uniform_color([0, 0.651, 0.929])
+        source_temp.transform(reg_p2p.transformation)
+        # o3d.visualization.draw_geometries([source_temp, target_temp])
+        # import ipdb;ipdb.set_trace()
+        new_transformation.append(reg_p2p.transformation@item['extrinsics'][0])
+
+
+    new_tf=np.stack(new_transformation)
+    np.savez(os.path.join("/data2/bsanthanam/icp/ps30/tf","tf_allposes_ICP2.npz"),new_tf)
+    # np.savez(os.path.join("/data1/bsanthanam/thesis/data/sweet_pepper_RGBfeats_subset/p1/tf","tf_allposes_ICP_23_09.npz"),new_tf)
+
+    import ipdb;ipdb.set_trace()
     
-        
-        for idx,item in enumerate(dl):
-            
-            pt = item['points'][0]
-            gt = item['extra']['gt_points'][0]
-            pcd = o3d.geometry.PointCloud()
-            pcd.points = o3d.utility.Vector3dVector(pt)
-            # o3d.visualization.draw_geometries([pcd])
-            gcd = o3d.geometry.PointCloud()
-
-            gcd.points = o3d.utility.Vector3dVector(gt)
-            colors=item['colors'][0]
-            pcd.colors=o3d.utility.Vector3dVector(colors)
-            gcd.paint_uniform_color([.5,.7,.5])
-            # o3d.visualization.draw_geometries([pcd,gcd])
-            o3d.io.write_point_cloud("/data1/bsanthanam/thesis/pepper_transformer/ipbloaders/ipb_loaders/pointcloud/gt.ply",pcd)
-            o3d.io.write_point_cloud("/data1/bsanthanam/thesis/pepper_transformer/ipbloaders/ipb_loaders/pointcloud/pcd.ply",gcd)
-            import ipdb;ipdb.set_trace()
-        
-
-
-
-        
-
-        # print('batch size: ', len(item['points']))
-    print("total datapoints: ",count)
+    

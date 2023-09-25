@@ -15,7 +15,12 @@ import time
 warnings.filterwarnings('ignore')
 
 def extract_features(model_type,input_img):
+    #use pretrained resnet on Imagenet
     resnet = models.resnet50(pretrained=True)
+
+    #Uncomment to use pretrained resnet through SSL (DINO model)
+    # resnet50= torch.hub.load('facebookresearch/dino:main','dino_resnet50')
+
     device=torch.device("cuda")
     resnet=resnet.to(device)
     resnet.eval()

@@ -1,9 +1,8 @@
-LOGDIR: '/data1/bsanthanam/thesis/data/logs/'
-# PATH: '/media/federico/federico_hdd/shape_completion/SweetPepper/SweetPepper'
-# PATH: '/export/data/federico-domain-adapatation/Strawberry/Strawberry'
+LOGDIR: '/data1/bsanthanam/thesis/data/logs/with_RGBtrial_22_09/'
 #PATH: '/data1/bsanthanam/thesis/data/sample_dataset_rodrigo/SweetPepperSmall'
-PATH: '/data1/bsanthanam/thesis/data/sweet_pepper_RGBfeats_subset'
-# PATH: '/data1/bsanthanam/thesis/data/sample_dataset_Rodrigo_p72/'
+# PATH: '/data1/bsanthanam/thesis/data/sweet_pepper_RGBfeats_subset'
+
+PATH: '/data2/bsanthanam/sweet_pepper_train/'
 
 #uncomment for testing just 5 images
 # PATH: '/data1/bsanthanam/thesis/data/sweet_pepper_RGBfeats_test_data'
@@ -12,7 +11,7 @@ PATH: '/data1/bsanthanam/thesis/data/sweet_pepper_RGBfeats_subset'
 # PATH: '/home/bharath/Desktop/thesis/code/data/sweet_pepper_master_copy/damaged_peppers_copy'
 # PATH: '/export/data/federico-domain-adapatation/SweetPepper/SweetPepper'
 EXPERIMENT:
-    ID: sunburned_pepper_withoutRGB_14_09_layer3
+    ID: check_sunburned_pepper_withRGB_22_09_layer3
 TRAIN:
     AUG: true
     BATCH_ACC: 4
@@ -20,7 +19,7 @@ TRAIN:
     DECAY: 0.95
     FREEZE_MODULES: []
     LR: 0.0001
-    MAX_EPOCH: 20
+    MAX_EPOCH: 2
     NUM_WORKERS: 0
     N_GPUS: -1
     STEP: 50

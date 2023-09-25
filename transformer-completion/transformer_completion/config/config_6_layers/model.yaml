@@ -1,4 +1,4 @@
-LOGDIR: '/data1/bsanthanam/thesis/data/logs/'
+LOGDIR: '/data1/bsanthanam/thesis/data/logs/with_RGB_16_09'
 # PATH: '/media/federico/federico_hdd/shape_completion/SweetPepper/SweetPepper'
 # PATH: '/export/data/federico-domain-adapatation/Strawberry/Strawberry'
 #PATH: '/data1/bsanthanam/thesis/data/sample_dataset_rodrigo/SweetPepperSmall'
@@ -12,7 +12,7 @@ PATH: '/data1/bsanthanam/thesis/data/sweet_pepper_RGBfeats_subset'
 # PATH: '/home/bharath/Desktop/thesis/code/data/sweet_pepper_master_copy/damaged_peppers_copy'
 # PATH: '/export/data/federico-domain-adapatation/SweetPepper/SweetPepper'
 EXPERIMENT:
-    ID: sunburned_pepper_withoutRGB_14_09_layer6
+    ID: sunburned_pepper_withRGB_16_09_layer6
 TRAIN:
     AUG: true
     BATCH_ACC: 4

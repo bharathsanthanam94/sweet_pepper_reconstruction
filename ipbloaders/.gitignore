@@ -4,3 +4,4 @@ ipb_loaders.egg-info/
 .coverage
 **/*.pyc
 data/
+**/trial.py

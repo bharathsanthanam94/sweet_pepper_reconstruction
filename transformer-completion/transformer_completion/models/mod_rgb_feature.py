@@ -33,8 +33,8 @@ class RGBfeatureprojection(nn.Module):
               
               vertices= vertices_mesh.cpu().detach().numpy().squeeze(0).astype(np.float32)
               faces=faces_mesh.cpu().numpy().squeeze(0).astype(np.uint32)
-              # vertices,faces=self.get_mesh_attr(vertices,faces,cam_extrinsics)
-
+              
+              #create a raycasting scene and add the mesh
               scene=o3d.t.geometry.RaycastingScene()
               geom_id=scene.add_triangles(o3d.core.Tensor(vertices),o3d.core.Tensor(faces))
               rays = scene.create_rays_pinhole(intrinsic_matrix=o3d.core.Tensor(intrinsics_mat),
@@ -53,7 +53,9 @@ class RGBfeatureprojection(nn.Module):
               vert_ids = vert_ids.astype(np.int64)
               vert_ids_tensor=torch.tensor(vert_ids).to(device)
               # vertex_features=0.5*np.ones((2562,512),dtype=np.uint8)
-              vertex_features = 0.5 * torch.ones((2562, 512), dtype=torch.uint8).cuda()
+              #error in previous implementation
+              # vertex_features = 0.5 * torch.ones((2562, 512), dtype=torch.uint8).cuda()
+              vertex_features = torch.zeros((2562, 512), dtype=torch.float32).cuda()
 
               
               
@@ -83,10 +85,13 @@ class RGBfeatureprojection(nn.Module):
               vertex_features[vert_ids_tensor[:, :, 1]] = image_array
               vertex_features[vert_ids_tensor[:, :, 2]] = image_array
               
-            
+              attn_mask= torch.zeros((2562,2562),dtype=torch.bool)
+              zero_rows=torch.all(vertex_features==0,dim=1)
+              attn_mask[zero_rows]=True
               # features_tensor=torch.from_numpy(vertex_features).unsqueeze(0)
-              
-              return vertex_features.unsqueeze(0)
+              # import ipdb;ipdb.set_trace()
+              # vertex_features.to(dtype=torch.float16)
+              return attn_mask, vertex_features.unsqueeze(0)
               
               '''
               proj_mesh = o3d.geometry.TriangleMesh()

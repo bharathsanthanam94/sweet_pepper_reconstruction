@@ -81,7 +81,7 @@ class MaskedTransformerDecoder(nn.Module):
 
         in_channels = in_channels[:-1]  # last is mask_feat
         in_channels = in_channels[-self.num_feature_levels :]
-
+        # import ipdb;ipdb.set_trace()
         self.input_proj = nn.ModuleList()
         # self.RGB_proj=nn.ModuleList()
         # for ch in in_channels:
@@ -97,7 +97,9 @@ class MaskedTransformerDecoder(nn.Module):
         if cfg.RGB:
             for i in range(self.num_layers-1):
                 self.input_proj.append(nn.Linear(in_channels[-1], hidden_dim))
-            self.RGB_proj=nn.Linear(536,hidden_dim)
+            # self.RGB_proj=nn.Linear(536,hidden_dim)
+            self.RGB_proj=nn.Linear(in_channels[-1]+512,hidden_dim)
+
         else:
             # import ipdb;ipdb.set_trace()
             for i in range(self.num_layers):
@@ -162,14 +164,14 @@ class MaskedTransformerDecoder(nn.Module):
             # import ipdb;ipdb.set_trace()
             #add the RGB features here to the template_features (the shape should be 1,2562,512+24)
             if self.rgb:
-                if i<2:
+                if i<self.num_layers-1:
                     # combined_features=torch.cat((template_features,rgb_mesh_features.float()),dim=2)
                     # print("RGB features combined")
                     src = self.input_proj[i](template_features)
                 else:
                     resnet_feat=RGBfeatureprojection("layer2")
                     #can try with template_points or pt_template
-                    rgb_mesh_features=resnet_feat(x['image'][0],pt_template,template_faces,x['extrinsics'][0],x['intrinsics'][0])
+                    attn_mask,rgb_mesh_features=resnet_feat(x['image'][0],pt_template,template_faces,x['extrinsics'][0],x['intrinsics'][0])
                     combined_features=torch.cat((template_features,rgb_mesh_features.float()),dim=2)
                     src=self.RGB_proj(combined_features)
                 
@@ -189,6 +191,7 @@ class MaskedTransformerDecoder(nn.Module):
             else:
                 #the  next lines
             '''
+            
             # cross-attention first
             output = self.transformer_cross_attention_layers[i](
                 output,

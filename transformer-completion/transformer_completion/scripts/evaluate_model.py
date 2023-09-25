@@ -23,16 +23,31 @@ def getDir(obj):
 @click.option("--dec_cr", type=float, default=None, required=False)
 @click.option("--iterative", is_flag=True)
 @click.option("--model_cfg_path", type=str, default="../config/model.yaml", required=False)
+@click.option("--dec_cfg_path", type=str, default="../config/decoder.yaml", required=False)
+@click.option("--bb_cfg_path", type=str, default="../config/backbone.yaml", required=False)
+
 @click.option("--vis_pred", is_flag=True)
 @click.option("--vis_int_pred", is_flag=True)
-def main(w, bb_cr, dec_cr, iterative, model_cfg_path, vis_pred, vis_int_pred):
+def main(w, bb_cr, dec_cr, iterative, model_cfg_path,dec_cfg_path,bb_cfg_path, vis_pred, vis_int_pred):
     model_cfg = edict(yaml.safe_load(open(join(getDir(__file__), model_cfg_path))))
+    
+    #earlier implementation
+    '''
     backbone_cfg = edict(
         yaml.safe_load(open(join(getDir(__file__), "../config/backbone.yaml")))
     )
     decoder_cfg = edict(
         yaml.safe_load(open(join(getDir(__file__), "../config/decoder.yaml")))
     )
+    '''
+    #tweak
+    backbone_cfg = edict(
+        yaml.safe_load(open(join(getDir(__file__), bb_cfg_path)))
+    )
+    decoder_cfg = edict(
+        yaml.safe_load(open(join(getDir(__file__), dec_cfg_path)))
+    )
+
     cfg = edict({**model_cfg, **backbone_cfg, **decoder_cfg})
 
     cfg.EVALUATE = True
