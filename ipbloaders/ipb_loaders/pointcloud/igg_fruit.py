@@ -5,6 +5,7 @@ import json
 from PIL import Image
 from ipb_loaders.ipb_base import IPB_Base
 import torch
+from torchvision import transforms
 import copy
 class IGGFruit(IPB_Base):
 
@@ -192,6 +193,16 @@ class IGGFruit(IPB_Base):
         if self.overfit:
             return 1
         return len(self.fruit_list)
+    
+    def get_image_tensor(self,img_path):
+        image_PIL = Image.open(img_path)
+        transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    ])
+        image_tensor=transform(image_PIL).unsqueeze(0)
+        return image_tensor
+
 
     def __getitem__(self, index):
         fruit_id = self.get_fruit_id(self.fruit_list[index])
@@ -228,6 +239,7 @@ class IGGFruit(IPB_Base):
             item['extrinsics']=self.fruit_list[index]['pose'].squeeze() #extra line added to get extrinsics
             intrinsics_mat=self.load_K(os.path.join(fruit_id, 'realsense/intrinsic.json')) #extra line added to get intrinsics
             item['intrinsics']=self.load_K(os.path.join(fruit_id, 'realsense/intrinsic.json')) #extra line added to get intrinsics
+            item['image_tensor']=self.get_image_tensor(item['image'])
             # item['RGB_feats']=features["/home/bharath/Desktop/thesis/code/data/sweet_pepper_master_copy/sweet_pepper_RGBfeats_subset/p1/realsense/"+"color/"+item['image'].split("color/")[1]].to('cpu')
             
 
@@ -238,6 +250,7 @@ class IGGFruit(IPB_Base):
             # item['image']=np.asarray(Image.open(self.fruit_list[index]['rgb'][0]))  #Extra line added to get RGB image as tensors 
             
             item['image']=self.fruit_list[index]['rgb'][0]
+            item['image_tensor']=self.get_image_tensor(item['image'])
             item['extrinsics']=self.fruit_list[index]['pose'].squeeze()#extra line added to get extrinsics
             # intrinsics_mat=self.load_K(os.path.join(fruit_id, 'realsense/intrinsic.json')) #extra line added to get intrinsics
             item['intrinsics']= self.load_K(os.path.join(fruit_id, 'realsense/intrinsic.json')) #extra line added to get intrinsics
