@@ -62,20 +62,16 @@ class RGBfeatureprojection(nn.Module):
               # image=o3d.io.read_image(rgb_filename)
               
               image_PIL = Image.open(rgb_filename)
-              
               # resnet_features = extract_features("resnet50", image_PIL)
               resnet_features = extract_features(resnet, image_PIL)
-              
+             
               resnet_features=resnet_features.squeeze(0)
-              import ipdb;ipdb.set_trace()
+             
               image_array=torch.repeat_interleave(torch.repeat_interleave(resnet_features,8,dim=1),8,dim=2)
-              
+             
               image_array=image_array.permute(1,2,0)
               
               
-              
-              
-            
 
               # image_array=np.asarray(image)
 

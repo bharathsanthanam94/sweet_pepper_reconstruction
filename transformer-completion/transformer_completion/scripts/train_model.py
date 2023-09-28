@@ -13,7 +13,7 @@ from transformer_completion.datasets.sbub3D import SBUB3DDatasetModule
 from transformer_completion.datasets.cka_fruit import CKAFruitDatasetModule
 from transformer_completion.models.mask_model import MaskPS
 
-from pytorch_lightning import Trainer
+from pytorch_lightning import Trainer,seed_everything
 from pytorch_lightning import loggers as pl_loggers
 from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 
@@ -29,6 +29,7 @@ from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 @click.option("--bb_cfg_path", type=str, default="../config/backbone.yaml", required=False)
 
 def main(w, ckpt, bb_cr, dec_cr, iterative, model_cfg_path, dec_cfg_path, bb_cfg_path):
+    seed_everything(42,workers=True)
     model_cfg = edict(
         yaml.safe_load(open(join(getDir(__file__), model_cfg_path)))
     )

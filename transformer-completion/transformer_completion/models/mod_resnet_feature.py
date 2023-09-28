@@ -35,6 +35,7 @@ def extract_features(model_type,input_img):
     img_tensor = transform(input_img)
     img_tensor = img_tensor.unsqueeze(0)  # add batch dimension
     img_tensor = img_tensor.to(device)
+   
     
     with torch.no_grad():
         layer_features = partial_model(img_tensor)

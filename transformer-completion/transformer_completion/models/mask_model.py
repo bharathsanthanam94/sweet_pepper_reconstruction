@@ -13,8 +13,7 @@ from transformer_completion.models.backbone import MinkEncoderDecoder
 from transformer_completion.models.decoder import MaskedTransformerDecoder
 from transformer_completion.optim import MTAdam
 from transformer_completion.utils.template_mesh import TemplateMesh
-
-
+from transformer_completion.models.fpn import ResNetFPN
 class MaskPS(LightningModule):
     def __init__(self, hparams):
         super().__init__()
@@ -41,6 +40,8 @@ class MaskPS(LightningModule):
             hparams.BACKBONE,
             hparams[hparams.MODEL.DATASET],
         )
+        #add this line to extract features from FPN model (added by Bharath for RGB features)
+        self.extract_features=ResNetFPN()
 
         self.freezeModules()
         self.chamfer_dist = ChamferDistanceLoss
@@ -87,11 +88,14 @@ class MaskPS(LightningModule):
     
 
         #TODO: Bharath: Extract features from ResNetFPN and pass them to decoder
+        #self.extract_Features() is defined in the init method
+        image_features=self.extract_features(x['image_tensor'][0])
         
+        #pass image_features as an argument to self.decoder() method
 
         #Here as an addition pass self.template_faces, and all of x
         
-        outputs=self.decoder(feats,coors,pad_masks,self.template_points,self.template_faces,x)
+        outputs=self.decoder(feats,coors,pad_masks,self.template_points,self.template_faces,x,image_features)
         
         #Below code is Fed's
         # outputs = self.decoder(feats, coors, pad_masks, self.template_points)

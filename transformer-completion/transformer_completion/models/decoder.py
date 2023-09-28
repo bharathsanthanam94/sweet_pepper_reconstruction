@@ -6,6 +6,7 @@ from transformer_completion.utils.interpolate import knn_up
 from torch import nn
 # from .rgb_feature import RGBfeatureprojection
 from .mod_rgb_feature import RGBfeatureprojection
+from .mod_raycasting import FpnFeatureProjection
 import time
 class MaskedTransformerDecoder(nn.Module):
     def __init__(self, cfg, bb_cfg, data_cfg):
@@ -98,7 +99,7 @@ class MaskedTransformerDecoder(nn.Module):
             for i in range(self.num_layers-1):
                 self.input_proj.append(nn.Linear(in_channels[-1], hidden_dim))
             # self.RGB_proj=nn.Linear(536,hidden_dim)
-            self.RGB_proj=nn.Linear(in_channels[-1]+512,hidden_dim)
+            self.RGB_proj=nn.Linear(in_channels[-1]+256,hidden_dim)
 
         else:
             # import ipdb;ipdb.set_trace()
@@ -124,7 +125,7 @@ class MaskedTransformerDecoder(nn.Module):
 
         return cached_model
     # Below arguments :template_faces and x: new
-    def forward(self, feats, coors, pad_masks, template_points,template_faces,x):
+    def forward(self, feats, coors, pad_masks, template_points,template_faces,x,image_features):
         bs = template_points.shape[0]
         
         # NxQxC
@@ -182,8 +183,13 @@ class MaskedTransformerDecoder(nn.Module):
                 else:
                     resnet_feat=RGBfeatureprojection("layer2")
                     #can try with template_points or pt_template [NO, ONLY USE pt_template]
-                    attn_mask_rgb,rgb_mesh_features=resnet_feat(x['image'][0],pt_template,template_faces,x['extrinsics'][0],x['intrinsics'][0],model)
-                    import ipdb;ipdb.set_trace()
+                    #uncomment the following line to use older resnet implementation
+                    # attn_mask_rgb,rgb_mesh_features=resnet_feat(x['image'][0],pt_template,template_faces,x['extrinsics'][0],x['intrinsics'][0],model)
+                    
+                    #Try with FPN network:
+                    fpn_features=FpnFeatureProjection("layer2")
+                    attn_mask_rgb,rgb_mesh_features=fpn_features(x['image'][0],pt_template,template_faces,x['extrinsics'][0],x['intrinsics'][0],image_features)
+                
                     combined_features=torch.cat((template_features,rgb_mesh_features.float()),dim=2)
                     src=self.RGB_proj(combined_features)
                 
