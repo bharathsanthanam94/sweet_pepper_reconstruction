@@ -28,7 +28,7 @@ class RGBfeatureprojection(nn.Module):
 
        
 
-        def forward(self,rgb_filename,vertices_mesh,faces_mesh,cam_extrinsics,intrinsics_mat):
+        def forward(self,rgb_filename,vertices_mesh,faces_mesh,cam_extrinsics,intrinsics_mat,resnet):
               
               
               vertices= vertices_mesh.cpu().detach().numpy().squeeze(0).astype(np.float32)
@@ -63,9 +63,11 @@ class RGBfeatureprojection(nn.Module):
               
               image_PIL = Image.open(rgb_filename)
               
-              resnet_features = extract_features("resnet50", image_PIL)
+              # resnet_features = extract_features("resnet50", image_PIL)
+              resnet_features = extract_features(resnet, image_PIL)
               
               resnet_features=resnet_features.squeeze(0)
+              import ipdb;ipdb.set_trace()
               image_array=torch.repeat_interleave(torch.repeat_interleave(resnet_features,8,dim=1),8,dim=2)
               
               image_array=image_array.permute(1,2,0)
@@ -85,9 +87,11 @@ class RGBfeatureprojection(nn.Module):
               vertex_features[vert_ids_tensor[:, :, 1]] = image_array
               vertex_features[vert_ids_tensor[:, :, 2]] = image_array
               
-              attn_mask= torch.zeros((2562,2562),dtype=torch.bool)
+              attn_mask= torch.zeros((2562,2562),dtype=torch.float32)
               zero_rows=torch.all(vertex_features==0,dim=1)
-              attn_mask[zero_rows]=True
+              attn_mask[zero_rows]=1
+
+              attn_mask=attn_mask.cuda()
               # features_tensor=torch.from_numpy(vertex_features).unsqueeze(0)
               # import ipdb;ipdb.set_trace()
               # vertex_features.to(dtype=torch.float16)

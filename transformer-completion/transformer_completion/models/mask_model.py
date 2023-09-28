@@ -84,7 +84,11 @@ class MaskPS(LightningModule):
         self.template_faces = torch.cat(template_faces, 0)
         self.template_points = torch.cat(template_points, 0)
         feats, coors, pad_masks = self.backbone(x)
-        # import ipdb; ipdb.set_trace()
+    
+
+        #TODO: Bharath: Extract features from ResNetFPN and pass them to decoder
+        
+
         #Here as an addition pass self.template_faces, and all of x
         
         outputs=self.decoder(feats,coors,pad_masks,self.template_points,self.template_faces,x)
@@ -206,6 +210,7 @@ class MaskPS(LightningModule):
 
             if "VIZ_INT" in self.cfg:
                 for int_i, int_mesh in enumerate(all_meshes):
+                    # import ipdb;ipdb.set_trace()
                     gt_pcd = o3d.geometry.PointCloud()
                     gt_pcd.points = o3d.utility.Vector3dVector(gt)
                     final_prediction_lineset = (
@@ -213,6 +218,8 @@ class MaskPS(LightningModule):
                             int_mesh[batch_idx]
                         )
                     )
+                    file_mesh=x['filename'][0].split('color/')[1].split('.png')[0]+"_int_mesh_level"+str(int_i)+".ply" #line added
+                    o3d.io.write_triangle_mesh(file_mesh, int_mesh[batch_idx]) #line added
                     in_pcd = o3d.geometry.PointCloud()
                     in_pcd.points = o3d.utility.Vector3dVector(x["points"][batch_idx])
                     print("Mesh level", int_i)

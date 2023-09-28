@@ -113,6 +113,16 @@ class MaskedTransformerDecoder(nn.Module):
         self.offset_head = blocks.MLP(
             hidden_dim, hidden_dim, output_dim=1, num_layers=3, tanh=False
         )
+    global cached_model
+    cached_model=None
+    def get_model(self):
+        
+        global cached_model
+        if cached_model is None:
+            # Load the model from torch hub
+            cached_model = torch.hub.load('facebookresearch/dino:main','dino_resnet50',pretrained=True)
+
+        return cached_model
     # Below arguments :template_faces and x: new
     def forward(self, feats, coors, pad_masks, template_points,template_faces,x):
         bs = template_points.shape[0]
@@ -164,20 +174,22 @@ class MaskedTransformerDecoder(nn.Module):
             # import ipdb;ipdb.set_trace()
             #add the RGB features here to the template_features (the shape should be 1,2562,512+24)
             if self.rgb:
+                model=self.get_model()
                 if i<self.num_layers-1:
                     # combined_features=torch.cat((template_features,rgb_mesh_features.float()),dim=2)
                     # print("RGB features combined")
                     src = self.input_proj[i](template_features)
                 else:
                     resnet_feat=RGBfeatureprojection("layer2")
-                    #can try with template_points or pt_template
-                    attn_mask,rgb_mesh_features=resnet_feat(x['image'][0],pt_template,template_faces,x['extrinsics'][0],x['intrinsics'][0])
+                    #can try with template_points or pt_template [NO, ONLY USE pt_template]
+                    attn_mask_rgb,rgb_mesh_features=resnet_feat(x['image'][0],pt_template,template_faces,x['extrinsics'][0],x['intrinsics'][0],model)
+                    import ipdb;ipdb.set_trace()
                     combined_features=torch.cat((template_features,rgb_mesh_features.float()),dim=2)
                     src=self.RGB_proj(combined_features)
                 
             else:
                 src= self.input_proj[i](template_features)
-            # import ipdb;ipdb.set_trace()
+            
 
             #earlier implementation
             # src = self.input_proj[i](template_features)
@@ -191,6 +203,14 @@ class MaskedTransformerDecoder(nn.Module):
             else:
                 #the  next lines
             '''
+        
+            
+            if self.rgb and i==self.num_layers-1:
+                attn_mask_ca =attn_mask_rgb
+            else:
+                attn_mask_ca=None
+
+            
             
             # cross-attention first
             output = self.transformer_cross_attention_layers[i](
