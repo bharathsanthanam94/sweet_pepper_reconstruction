@@ -44,7 +44,15 @@ class MaskedTransformerDecoder(nn.Module):
         self.offset_scaling = cfg.OFFSET_SCALING
         self.iterative_template = cfg.ITERATIVE_TEMPLATE
         self.template_knn_up = knn_up(50)
+
+        #RGB specific attributes
         self.rgb= cfg.RGB
+        self.num_layers_rgb=cfg.NUM_LAYERS_RGB
+        self.pcl_rgb=cfg.PCL_RGB
+        self.pcl_int_rgb=cfg.PCL_INT_RGB
+        self.rgb_model= cfg.RGB_MODEL
+        self.masked_attn=cfg.ATTN_MASK_RGB
+
         for _ in range(self.num_layers):
             self.transformer_self_attention_layers.append(
                 blocks.SelfAttentionLayer(d_model=hidden_dim, nhead=nheads, dropout=0.0)
@@ -96,10 +104,13 @@ class MaskedTransformerDecoder(nn.Module):
             self.input_proj.append(nn.Linear(in_channels[-1], hidden_dim))
         '''
         if cfg.RGB:
-            for i in range(self.num_layers-1):
+            for i in range(self.num_layers-self.num_layers_rgb):
                 self.input_proj.append(nn.Linear(in_channels[-1], hidden_dim))
             # self.RGB_proj=nn.Linear(536,hidden_dim)
-            self.RGB_proj=nn.Linear(in_channels[-1]+256,hidden_dim)
+            if self.pcl_rgb:
+                self.RGB_proj=nn.Linear(in_channels[-1]+256,hidden_dim)
+            else:
+                self.RGB_proj=nn.Linear(256,hidden_dim)
 
         else:
             # import ipdb;ipdb.set_trace()
@@ -175,28 +186,39 @@ class MaskedTransformerDecoder(nn.Module):
             # import ipdb;ipdb.set_trace()
             #add the RGB features here to the template_features (the shape should be 1,2562,512+24)
             if self.rgb:
-                model=self.get_model()
-                if i<self.num_layers-1:
+                if self.rgb_model=="resnet":
+                    model=self.get_model()
+                if i<self.num_layers-self.num_layers_rgb:
                     # combined_features=torch.cat((template_features,rgb_mesh_features.float()),dim=2)
                     # print("RGB features combined")
                     src = self.input_proj[i](template_features)
                 else:
-                    resnet_feat=RGBfeatureprojection("layer2")
+                    
                     #can try with template_points or pt_template [NO, ONLY USE pt_template]
                     #uncomment the following line to use older resnet implementation
-                    # attn_mask_rgb,rgb_mesh_features=resnet_feat(x['image'][0],pt_template,template_faces,x['extrinsics'][0],x['intrinsics'][0],model)
+                    if self.rgb_model=="resnet":
+                        resnet_feat=RGBfeatureprojection("layer2")
+                        attn_mask_rgb,rgb_mesh_features=resnet_feat(x['image'][0],pt_template,template_faces,x['extrinsics'][0],x['intrinsics'][0],model)
+
+                    else:
+                        #Try with FPN network:
+                        fpn_features=FpnFeatureProjection("layer2")
+                        attn_mask_rgb,rgb_mesh_features=fpn_features(x['image'][0],pt_template,template_faces,x['extrinsics'][0],x['intrinsics'][0],image_features)
+                        
                     
-                    #Try with FPN network:
-                    fpn_features=FpnFeatureProjection("layer2")
-                    attn_mask_rgb,rgb_mesh_features=fpn_features(x['image'][0],pt_template,template_faces,x['extrinsics'][0],x['intrinsics'][0],image_features)
-                
-                    combined_features=torch.cat((template_features,rgb_mesh_features.float()),dim=2)
-                    src=self.RGB_proj(combined_features)
+                    if  self.pcl_rgb:
+                        combined_features=torch.cat((template_features,rgb_mesh_features.float()),dim=2)
+                        src=self.RGB_proj(combined_features)   
+                    else:
+                       
+                        src=self.RGB_proj(rgb_mesh_features.float())
+                        
+                        
                 
             else:
                 src= self.input_proj[i](template_features)
             
-
+            
             #earlier implementation
             # src = self.input_proj[i](template_features)
             pos = self.pe_layer(pt_template) #(pt_template:1,2562,3)
@@ -211,7 +233,7 @@ class MaskedTransformerDecoder(nn.Module):
             '''
         
             
-            if self.rgb and i==self.num_layers-1:
+            if self.masked_attn and self.rgb and i==self.num_layers-1 :
                 attn_mask_ca =attn_mask_rgb
             else:
                 attn_mask_ca=None
@@ -222,7 +244,7 @@ class MaskedTransformerDecoder(nn.Module):
             output = self.transformer_cross_attention_layers[i](
                 output,
                 src,
-                attn_mask=None,
+                attn_mask=attn_mask_ca,
                 padding_mask=None,
                 pos=pos,
                 query_pos=query_embed,
@@ -230,7 +252,7 @@ class MaskedTransformerDecoder(nn.Module):
 
             # self-attention
             output = self.transformer_self_attention_layers[i](
-                output, attn_mask=None, padding_mask=None, query_pos=query_embed
+                output, attn_mask=attn_mask_ca, padding_mask=None, query_pos=query_embed
             )
 
             # FFN

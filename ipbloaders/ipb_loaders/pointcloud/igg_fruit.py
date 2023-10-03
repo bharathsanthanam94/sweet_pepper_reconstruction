@@ -317,7 +317,7 @@ if __name__ == '__main__':
 
 
     new_tf=np.stack(new_transformation)
-    np.savez(os.path.join("/data2/bsanthanam/icp/ps30/tf","tf_allposes_ICP2.npz"),new_tf)
+    np.savez(os.path.join("/data2/bsanthanam/icp/ps5/tf","tf_allposes_ICP2.npz"),new_tf)
     # np.savez(os.path.join("/data1/bsanthanam/thesis/data/sweet_pepper_RGBfeats_subset/p1/tf","tf_allposes_ICP_23_09.npz"),new_tf)
 
     import ipdb;ipdb.set_trace()

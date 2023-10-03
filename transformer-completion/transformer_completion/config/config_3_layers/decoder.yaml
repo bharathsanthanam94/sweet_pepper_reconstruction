@@ -10,6 +10,11 @@ DECODER:
     MASK_FEAT_PE: False # add pe to the point features
     OFFSET_SCALING: 2.5
     RGB: True
+    ATTN_MASK_RGB: True
+    RGB_MODEL: "fpn" #"resnet" (pretrained for now) or "fpn", currently resnet doesnt work
+    PCL_RGB: False # PCL features at the last layer where RGB projection happens
+    PCL_INT_RGB: False #PCL features at the intermediate layers where RGB projection happens
+    NUM_LAYERS_RGB: 1 #number of layers from the end where RGB projection happens
     ITERATIVE_TEMPLATE: False
     POS_ENC:
         MAX_FREQ: 10000
