@@ -12,7 +12,7 @@ import os
 import copy
 import json
 import torch
-import trimesh
+# import trimesh
 import ipdb
 import open3d as o3d
 from PIL import Image
