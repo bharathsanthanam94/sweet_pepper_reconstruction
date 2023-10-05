@@ -136,7 +136,7 @@ def main(w, ckpt, bb_cr, dec_cr, iterative, model_cfg_path, dec_cfg_path, bb_cfg
         gradient_clip_val=0.5,
         accumulate_grad_batches=cfg.TRAIN.BATCH_ACC,
         resume_from_checkpoint=ckpt,
-        check_val_every_n_epoch=5,
+        check_val_every_n_epoch=2,
     )
     trainer.fit(model, data)
     trainer.test(model, dataloaders=data.test_dataloader())

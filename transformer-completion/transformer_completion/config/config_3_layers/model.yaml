@@ -1,6 +1,7 @@
 LOGDIR: '/data1/bsanthanam/thesis/data/logs/masked_RGBtrial_25_09/withoutmasks/'
 #PATH: '/data1/bsanthanam/thesis/data/sample_dataset_rodrigo/SweetPepperSmall'
-PATH: '/data1/bsanthanam/thesis/data/sweet_pepper_RGBfeats_subset'
+# PATH: '/data1/bsanthanam/thesis/data/sweet_pepper_RGBfeats_subset'
+PATH: '/data2/bsanthanam/sweet_pepper_train'
 
 # PATH: '/data2/bsanthanam/sweet_pepper_train/'
 
@@ -17,9 +18,9 @@ TRAIN:
     BATCH_ACC: 4
     BATCH_SIZE: 1
     DECAY: 0.95
-    FREEZE_MODULES: []
+    FREEZE_MODULES: [RGB_BACKBONE]
     LR: 0.0001
-    MAX_EPOCH: 20
+    MAX_EPOCH: 1
     NUM_WORKERS: 0
     N_GPUS: -1
     STEP: 50

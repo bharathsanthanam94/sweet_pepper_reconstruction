@@ -66,7 +66,7 @@ class MaskPS(LightningModule):
             self.smooth = self.cfg.MODEL.SMOOTH_LEAF
 
     def freezeModules(self):
-        freeze_dict = {"BACKBONE": self.backbone, "DECODER": self.decoder}
+        freeze_dict = {"BACKBONE": self.backbone, "DECODER": self.decoder, "RGB_BACKBONE":self.extract_features}
         print("Frozen modules: ", self.cfg.TRAIN.FREEZE_MODULES)
         for module in self.cfg.TRAIN.FREEZE_MODULES:
             for param in freeze_dict[module].parameters():

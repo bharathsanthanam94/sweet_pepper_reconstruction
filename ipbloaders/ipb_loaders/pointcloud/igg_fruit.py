@@ -41,7 +41,7 @@ class IGGFruit(IPB_Base):
         return aug_list
 
     def get_file_paths(self):
-        self.fragment_step = 1
+        self.fragment_step = 10
         fruit_list = []
         for fid in self.splits[self.split]:
             if self.sensor == 'realsense':
@@ -236,7 +236,7 @@ class IGGFruit(IPB_Base):
             item['colors'] = np.asarray(pcd.colors)
             # item['image']=np.asarray(Image.open(item['filename']))  #Extra line added to get RGB image as tensors 
             item['image']=item['filename']
-            item['extrinsics']=self.fruit_list[index]['pose'].squeeze() #extra line added to get extrinsics
+            item['extrinsics']=self.fruit_list[index]['pose'][0].squeeze() #extra line added to get extrinsics
             intrinsics_mat=self.load_K(os.path.join(fruit_id, 'realsense/intrinsic.json')) #extra line added to get intrinsics
             item['intrinsics']=self.load_K(os.path.join(fruit_id, 'realsense/intrinsic.json')) #extra line added to get intrinsics
             item['image_tensor']=self.get_image_tensor(item['image'])
@@ -251,7 +251,7 @@ class IGGFruit(IPB_Base):
             
             item['image']=self.fruit_list[index]['rgb'][0]
             item['image_tensor']=self.get_image_tensor(item['image'])
-            item['extrinsics']=self.fruit_list[index]['pose'].squeeze()#extra line added to get extrinsics
+            item['extrinsics']=self.fruit_list[index]['pose'][0].squeeze()#extra line added to get extrinsics
             # intrinsics_mat=self.load_K(os.path.join(fruit_id, 'realsense/intrinsic.json')) #extra line added to get intrinsics
             item['intrinsics']= self.load_K(os.path.join(fruit_id, 'realsense/intrinsic.json')) #extra line added to get intrinsics
             # item['RGB_feats']=features["/home/bharath/Desktop/thesis/code/data/sweet_pepper_master_copy/sweet_pepper_RGBfeats_subset/p1/realsense/"+"color/"+item['image'].split("color/")[1]].to('cpu')
@@ -261,8 +261,8 @@ class IGGFruit(IPB_Base):
 
 if __name__ == '__main__':
     from torch.utils.data import DataLoader
-    # dd = IGGFruit(data_source='/data1/bsanthanam/thesis/data/sweet_pepper_RGBfeats_subset/', sensor='realsense', precomputed_augmentation=False)
-    dd = IGGFruit(data_source='/data2/bsanthanam/icp/', sensor='realsense', precomputed_augmentation=False)
+    dd = IGGFruit(data_source='/data1/bsanthanam/thesis/data/sweet_pepper_RGBfeats_subset/', sensor='realsense', precomputed_augmentation=False)
+    # dd = IGGFruit(data_source='/data2/bsanthanam/icp/', sensor='realsense', precomputed_augmentation=False)
 
     dl = DataLoader(dd, batch_size=1, collate_fn=dd.collate)
     '''
@@ -276,6 +276,7 @@ if __name__ == '__main__':
     #for ICP
     new_transformation=[]
     for idx,item in enumerate(dl):
+        import ipdb;ipdb.set_trace()
         # print(item['points'][0].shape)
         pt = item['points'][0]
         gt = item['extra']['gt_points'][0]
