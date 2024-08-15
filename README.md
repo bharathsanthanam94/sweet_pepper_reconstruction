@@ -6,7 +6,7 @@ Sweet peppers with defects are distinctly identified by the color variations in 
 
 ![damaged_pepper](mesh_reconstruction.png)
 
-Full credits to the authors of the paper for the base code. We only use the perform RGB projection on top of the base code. 
+Full credits to the authors of the paper for the base code. We only perform RGB projection on top of the base code.
 
 #### Requirements
 
